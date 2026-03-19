@@ -1,0 +1,12 @@
+node_modules/
+artifacts/
+cache/
+dist/
+bundle/
+types/
+coverage/
+.env
+frontend/node_modules/
+frontend/dist/
+*.log
+ignition/deployments/
