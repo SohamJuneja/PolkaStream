@@ -17,8 +17,9 @@ export const polkadotHubTestnet = defineChain({
 });
 
 export const CONTRACTS = {
-  streamToken: "0x651b8475b98fb6b19ed57e34bcb5a63481375741" as const,
-  polkaStream: "0xe86ff91613e2997d498daa78974ab2440fb9d048" as const,
+  streamToken: "0xa223258921ea6b0e17f82b57c2bff7b51a33fbdf" as const,
+  polkaStream: "0x565dc3183e537b17c1592a7bbcf1de237cf76094" as const,
+  streamNFT: "0x09f48b51077bf8aed7649759830bae78acf29cf4" as const,
 };
 
 export const STREAM_TOKEN_ABI = [

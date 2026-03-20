@@ -79,13 +79,17 @@ async function main() {
 
   console.log("\n2️⃣  Deploying PolkaStreamNative...");
   const streamAddress = await deploy("PolkaStreamNative", []);
+  // 3. Deploy StreamNFT
+  console.log("\n3️⃣  Deploying StreamNFT...");
+  const nftAddress = await deploy("StreamNFT", []);
 
   // 3. Summary
   console.log("\n" + "=".repeat(50));
   console.log("🎉 DEPLOYMENT COMPLETE!");
   console.log("=".repeat(50));
   console.log(`StreamToken (psUSD): ${tokenAddress}`);
-  console.log(`PolkaStream:         ${streamAddress}`);
+  console.log(`PolkaStreamNative:   ${streamAddress}`);
+  console.log(`StreamNFT:           ${nftAddress}`);
   console.log("=".repeat(50));
   console.log("\nSave these addresses! You'll need them for the frontend.");
 }
