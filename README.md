@@ -2,9 +2,10 @@
 
 **Real-time token streaming protocol on Polkadot Hub**
 
-Stream payments that flow every second. Payroll, vesting, subscriptions — all on-chain, using Polkadot native assets.
+Stream payments that flow every second. Payroll, vesting, subscriptions — all on-chain, using Polkadot native assets. Stream positions are transferable NFTs.
 
-[![Live on Testnet](https://img.shields.io/badge/Polkadot_Hub_Testnet-Live-E6007A?style=for-the-badge&logo=polkadot)](https://blockscout-testnet.polkadot.io/address/0xe86ff91613e2997d498daa78974ab2440fb9d048)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-polka--stream.vercel.app-E6007A?style=for-the-badge&logo=vercel)](https://polka-stream.vercel.app)
+[![Live on Testnet](https://img.shields.io/badge/Polkadot_Hub_Testnet-Live-E6007A?style=for-the-badge&logo=polkadot)](https://blockscout-testnet.polkadot.io/address/0x565dc3183e537b17c1592a7bbcf1de237cf76094)
 [![Tests](https://img.shields.io/badge/Tests-32_passing-22c55e?style=for-the-badge)]()
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.28-363636?style=for-the-badge&logo=solidity)]()
 
@@ -23,7 +24,7 @@ Token payments today are discrete — you send a lump sum and hope for the best.
 
 PolkaStream makes tokens flow continuously, per second, on Polkadot Hub. A sender locks tokens into a stream, and the recipient can withdraw their earned portion at any time. If the relationship ends, the sender cancels and instantly reclaims the unstreamed balance.
 
-**Built natively for Polkadot** — not a fork of Ethereum tooling deployed on Polkadot. PolkaStream uses the ERC-20 precompile to stream Polkadot native assets (USDT, USDC, DOT) without wrapping, and integrates the XCM precompile for cross-chain stream notifications.
+**Built natively for Polkadot** — not a fork of Ethereum tooling deployed on Polkadot. PolkaStream uses the ERC-20 precompile to stream Polkadot native assets (USDT, USDC, DOT) without wrapping, integrates the XCM precompile for cross-chain stream notifications, and mints transferable ERC-721 NFTs representing stream positions.
 
 ---
 
@@ -61,7 +62,7 @@ Polkadot Hub's dual-VM architecture means EVM contracts and PVM contracts share 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Frontend (React + viem)                    │
-│          Live-ticking stream counters + MetaMask             │
+│     Live-ticking counters · Batch Payroll · Analytics        │
 └──────────────────────────┬──────────────────────────────────┘
                            │ Eth JSON-RPC
 ┌──────────────────────────▼──────────────────────────────────┐
@@ -77,6 +78,12 @@ Polkadot Hub's dual-VM architecture means EVM contracts and PVM contracts share 
 │  │  • Cancel + refund   │    │    (Cross-chain messaging)  │  │
 │  │  • Asset registry    │    └────────────────────────────┘  │
 │  └─────────────────────┘                                    │
+│                                                              │
+│  ┌─────────────────────┐                                    │
+│  │  StreamNFT (ERC-721) │    Transferable stream positions  │
+│  │  • On-chain SVG      │    Transfer NFT = transfer income │
+│  │  • Batch mint        │    Composable DeFi primitive       │
+│  └─────────────────────┘                                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -91,6 +98,13 @@ Polkadot Hub's dual-VM architecture means EVM contracts and PVM contracts share 
 - Cancel anytime — sender reclaims unstreamed tokens, recipient keeps earned amount
 - Withdraw anytime — recipients pull earned tokens whenever they want
 
+**Stream NFT Receipts (ERC-721)**
+- Every stream mints a transferable NFT to the recipient
+- Transfer the NFT = transfer the right to withdraw from the stream
+- Fully on-chain SVG metadata — no IPFS dependency
+- Dynamic rendering of stream amount, progress, status, and label
+- Enables secondary markets for income streams, DeFi collateral, and gifting
+
 **Polkadot Native**
 - Native asset registry with ERC-20 precompile integration
 - Stream USDT, USDC, or any pallet-assets token without wrapping
@@ -100,20 +114,51 @@ Polkadot Hub's dual-VM architecture means EVM contracts and PVM contracts share 
 **Frontend**
 - Real-time animated counters that tick every frame (requestAnimationFrame)
 - Live progress bars with glow effects on active streams
-- Create, withdraw, and cancel streams from the UI
-- Mint test tokens for easy demo
+- Batch payroll interface with add/remove recipients
+- Native asset selector showing Polkadot precompile addresses
+- Protocol analytics dashboard
 - RainbowKit wallet connection
+
+---
+
+## Stream NFT Receipts
+
+PolkaStream's unique innovation: every stream position is a transferable NFT.
+
+When a stream is created via `StreamNFT.sol`, an ERC-721 token is minted to the recipient. This NFT **is** the stream — whoever holds the NFT has the right to withdraw earned tokens.
+
+**Transfer the NFT → Transfer the income stream.**
+
+| Use Case | How It Works |
+|----------|-------------|
+| Sell future salary | List your salary stream NFT on any marketplace |
+| DeFi collateral | Use vesting NFT as collateral in lending protocols |
+| Gift payments | Transfer the NFT to gift someone a payment stream |
+| Derivatives | Build options/futures on stream positions |
+
+Each NFT has **fully on-chain SVG metadata** — no IPFS dependency. The SVG dynamically renders stream amount, progress, status, and label from contract state.
+
+```solidity
+// Only the NFT holder can withdraw
+function withdraw(uint256 streamId) external {
+    require(ownerOf(streamId) == msg.sender, "Not NFT owner");
+    // ... earned tokens transfer to NFT holder
+}
+```
 
 ---
 
 ## Live Deployment
 
-Deployed on **Polkadot Hub Testnet** (Paseo Asset Hub, Chain ID 420420417):
+All contracts deployed on **Polkadot Hub Testnet** (Paseo Asset Hub, Chain ID 420420417):
 
 | Contract | Address | Explorer |
 |----------|---------|----------|
-| PolkaStreamNative | `0xe86ff91613e2997d498daa78974ab2440fb9d048` | [View ↗](https://blockscout-testnet.polkadot.io/address/0xe86ff91613e2997d498daa78974ab2440fb9d048) |
-| StreamToken (psUSD) | `0x651b8475b98fb6b19ed57e34bcb5a63481375741` | [View ↗](https://blockscout-testnet.polkadot.io/address/0x651b8475b98fb6b19ed57e34bcb5a63481375741) |
+| PolkaStreamNative | `0x565dc3183e537b17c1592a7bbcf1de237cf76094` | [View ↗](https://blockscout-testnet.polkadot.io/address/0x565dc3183e537b17c1592a7bbcf1de237cf76094) |
+| StreamNFT | `0x09f48b51077bf8aed7649759830bae78acf29cf4` | [View ↗](https://blockscout-testnet.polkadot.io/address/0x09f48b51077bf8aed7649759830bae78acf29cf4) |
+| StreamToken (psUSD) | `0xa223258921ea6b0e17f82b57c2bff7b51a33fbdf` | [View ↗](https://blockscout-testnet.polkadot.io/address/0xa223258921ea6b0e17f82b57c2bff7b51a33fbdf) |
+
+**Network:** Polkadot Hub Testnet · Chain ID: 420420417 · RPC: `https://eth-rpc-testnet.polkadot.io/`
 
 ---
 
@@ -251,6 +296,18 @@ DEPLOYER_PRIVATE_KEY=0x_your_private_key_here
 | `sendStreamNotification(destination, message)` | Send XCM notification |
 | `estimateXCMWeight(message)` | Estimate XCM execution cost |
 
+### StreamNFT (Transferable Positions)
+
+| Function | Description |
+|----------|-------------|
+| `createStream(recipient, token, amount, duration, label)` | Create stream + mint NFT |
+| `createCliffStream(recipient, token, amount, duration, cliff, label)` | Cliff stream + NFT |
+| `createBatchStreams(recipients[], amounts[], token, duration, label)` | Batch + NFTs |
+| `withdraw(streamId)` | NFT holder withdraws earned tokens |
+| `cancel(streamId)` | Original sender cancels stream |
+| `tokenURI(streamId)` | On-chain SVG metadata |
+| `transferFrom(from, to, streamId)` | Transfer stream position (ERC-721) |
+
 ---
 
 ## Project Structure
@@ -259,21 +316,22 @@ DEPLOYER_PRIVATE_KEY=0x_your_private_key_here
 PolkaStream/
 ├── contracts/
 │   ├── PolkaStream.sol          # Core streaming protocol
-│   ├── PolkaStreamNative.sol    # Polkadot-native extensions (ERC-20 precompile + XCM)
+│   ├── PolkaStreamNative.sol    # Polkadot-native extensions (ERC-20 + XCM precompiles)
+│   ├── StreamNFT.sol            # Transferable stream positions as ERC-721
 │   ├── IXcm.sol                 # XCM precompile interface
 │   └── StreamToken.sol          # Test ERC-20 token
 ├── frontend/
 │   └── src/
-│       ├── App.tsx              # Main dashboard with live streaming UI
+│       ├── App.tsx              # Dashboard with live streaming, batch payroll, analytics
 │       ├── config.ts            # Contract addresses and ABIs
-│       ├── main.tsx             # Wagmi + RainbowKit provider setup
-│       └── index.css            # Dark theme with animations
+│       ├── main.tsx             # Wagmi + RainbowKit provider
+│       └── index.css            # Dark theme with Space Grotesk + JetBrains Mono
 ├── scripts/
-│   ├── deploy.ts                # Deploy to Polkadot Hub testnet
+│   ├── deploy.ts                # Deploy all contracts to Polkadot Hub
 │   └── test-stream.ts           # On-chain integration test
 ├── test/
 │   └── PolkaStream.ts           # 32 comprehensive tests
-└── hardhat.config.ts            # Hardhat v3 + Polkadot Hub network
+└── hardhat.config.ts            # Hardhat v3 + viaIR + Polkadot Hub network
 ```
 
 ---
@@ -282,8 +340,9 @@ PolkaStream/
 
 - **ReentrancyGuard** on all state-changing functions (OpenZeppelin)
 - **SafeERC20** for all token transfers — handles non-standard return values
+- **ERC721Enumerable** for NFT position tracking (OpenZeppelin)
 - **Integer math** checked by Solidity 0.8.28 default overflow protection
-- **Access control** — only stream sender can cancel, only recipient can withdraw
+- **Access control** — only stream sender can cancel, only NFT holder can withdraw
 - **No proxy pattern** — immutable deployment, no upgrade risk
 - Stream funds are held by the contract, not by any admin
 
@@ -295,10 +354,12 @@ PolkaStream/
 - Core streaming protocol with linear and cliff streams
 - Native asset integration via ERC-20 precompile
 - XCM notification infrastructure
-- Frontend with live streaming visualization
+- Stream NFT receipts with on-chain SVG
+- Batch payroll for DAOs
+- Frontend with live streaming visualization and analytics
 
 **Phase 2 — Post-Hackathon**
-- Stream NFT receipts (ERC-721 representing stream positions)
+- NFT marketplace integration for trading stream positions
 - Multi-token streams (stream multiple assets in one stream)
 - Scheduled streams via XCM Transact
 - Mainnet deployment on Polkadot Hub
@@ -307,23 +368,27 @@ PolkaStream/
 - SDK for other dApps to integrate streaming payments
 - Governance module for protocol parameters
 - Cross-chain streams via XCM execute
+- Stream position derivatives and lending integration
 
 ---
 
 ## Tech Stack
 
-- **Smart Contracts**: Solidity 0.8.28, OpenZeppelin 5.x
-- **Framework**: Hardhat v3
+- **Smart Contracts**: Solidity 0.8.28, OpenZeppelin 5.x (ERC721, ReentrancyGuard, SafeERC20)
+- **NFT Metadata**: Fully on-chain SVG generation (Base64 encoded, no IPFS)
+- **Framework**: Hardhat v3 with viaIR compilation
 - **Frontend**: React 18, TypeScript, viem, wagmi, RainbowKit
+- **Styling**: Custom CSS with Space Grotesk + JetBrains Mono
 - **Network**: Polkadot Hub Testnet (Paseo Asset Hub, Chain ID 420420417)
 - **Precompiles**: ERC-20 (native assets), XCM (cross-chain messaging)
+- **Hosting**: Vercel
 
 ---
 
 ## Hackathon
 
 **Polkadot Solidity Hackathon 2026**
-- **Track**: Track 1 — EVM Smart Contract (DeFi & Stablecoin-enabled dApps)
+- **Tracks**: Track 1 (EVM Smart Contract) · Track 2 (PVM — Native Assets + Precompiles) · OpenZeppelin Sponsor Track
 - **Builder**: [SohamJuneja](https://github.com/SohamJuneja)
 
 ---
